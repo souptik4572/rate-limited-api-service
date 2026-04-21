@@ -13,6 +13,6 @@ if count >= limit then
 end
 
 redis.call('ZADD', key, now, request_id)
-redis.call('EXPIRE', key, 60)
+redis.call('PEXPIRE', key, window)
 
 return 1
