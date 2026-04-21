@@ -1,0 +1,17 @@
+{
+  "port": 3000,
+  "rateLimit": 5,
+  "rateWindowMs": 60000,
+  "logLevel": "info",
+  "enableDeferredProcessing": false,
+  "enableRateLimitQueueFallback": false,
+  "rateLimitQueueDelayMs": 60000,
+  "queueName": "request-processing",
+  "queueAttempts": 3,
+  "queueBackoffMs": 1000,
+  "enableQueueBatching": false,
+  "queueBatchSize": 25,
+  "queueBatchWindowMs": 50,
+  "enableStatsCache": false,
+  "statsCacheTtlSeconds": 10
+}

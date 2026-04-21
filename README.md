@@ -48,10 +48,16 @@ persisting per-user analytics in MySQL through Prisma.
 npm install
 ```
 
-2. Copy `.env.example` to `.env` only if you want to override the defaults for
-   local development outside Docker. The example file includes both host-local
-   URLs and Docker-internal URLs so the same repo can support `npm run dev` and
-   `docker compose up`.
+2. Non-sensitive app settings are in `config.json`.
+
+3. Copy `.env.example` to `.env` only if you need to set or override sensitive
+  connection values (for example, database credentials and connection URLs).
+
+Config precedence:
+
+- Environment variables (`.env` / process env) have highest priority.
+- `config.json` provides non-sensitive defaults.
+- Internal code defaults are last-resort fallback values.
 
 ## Steps To Run The Project
 
