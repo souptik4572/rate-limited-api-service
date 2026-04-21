@@ -12,6 +12,7 @@ import {
   RateLimiterService,
   type RedisScriptClient,
 } from './services/rateLimiter.service';
+import { RequestQueueService } from './services/requestQueue.service';
 import { StatsService } from './services/stats.service';
 import { logger } from './utils/logger';
 
@@ -45,11 +46,36 @@ export async function buildApp() {
   const statsService = new StatsService({
     prisma,
     logger: app.log,
+    cache: {
+      enabled: env.enableStatsCache,
+      ttlSeconds: env.statsCacheTtlSeconds,
+      redis,
+    },
+  });
+
+  const requestQueueService = new RequestQueueService({
+    logger: app.log,
+    redisUrl: env.redisUrl,
+    queueName: env.queueName,
+    enabled: env.enableDeferredProcessing || env.enableRateLimitQueueFallback,
+    enableBatching: env.enableQueueBatching,
+    batchSize: env.queueBatchSize,
+    batchWindowMs: env.queueBatchWindowMs,
+    attempts: env.queueAttempts,
+    backoffMs: env.queueBackoffMs,
+    processPayload: async (payload) => {
+      await Promise.resolve(payload);
+    },
   });
 
   const requestController = new RequestController({
     rateLimiterService,
     statsService,
+    requestQueueService,
+    enableDeferredProcessing: env.enableDeferredProcessing,
+    enableRateLimitQueueFallback: env.enableRateLimitQueueFallback,
+    rateLimitQueueDelayMs: env.rateLimitQueueDelayMs,
+    logger: app.log,
   });
 
   const statsController = new StatsController({
@@ -72,6 +98,12 @@ export async function buildApp() {
     }
 
     try {
+      await requestQueueService.initialize();
+    } catch (error) {
+      app.log.error({ err: error }, 'Queue initialization failed. Request processing will run without deferred queueing.');
+    }
+
+    try {
       await prisma.$connect();
       app.log.info('MySQL connection established');
     } catch (error) {
@@ -80,7 +112,11 @@ export async function buildApp() {
   });
 
   app.addHook('onClose', async () => {
-    await Promise.allSettled([redis.quit(), prisma.$disconnect()]);
+    await Promise.allSettled([
+      requestQueueService.close(),
+      redis.quit(),
+      prisma.$disconnect(),
+    ]);
   });
 
   return app;
