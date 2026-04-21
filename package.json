@@ -1,0 +1,36 @@
+{
+  "name": "rate-limited-api-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-grade rate-limited API service using Fastify, Redis, MySQL, and Prisma.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx watch src/app.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/app.js",
+    "start:docker": "npm run prisma:migrate:deploy && node dist/app.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "migrations:verify": "node scripts/verify-migrations.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:create": "prisma migrate dev --create-only",
+    "prisma:migrate:deploy": "npm run migrations:verify && prisma migrate deploy",
+    "prisma:migrate:down": "node scripts/migrate-down.js",
+    "load:test": "tsx scripts/load-test.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.7.0",
+    "fastify": "^5.2.1",
+    "ioredis": "^5.4.1",
+    "pino": "^9.6.0",
+    "prisma": "^6.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
+  }
+}

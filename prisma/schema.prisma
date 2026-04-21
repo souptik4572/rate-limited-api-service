@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model UserStats {
+  id               Int      @id @default(autoincrement())
+  userId           String   @unique
+  totalRequests    Int      @default(0)
+  acceptedRequests Int      @default(0)
+  rejectedRequests Int      @default(0)
+  updatedAt        DateTime @updatedAt
+}

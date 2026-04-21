@@ -137,3 +137,16 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Added by code-review-graph
+.code-review-graph/
+.claude
+.cursor
+.windsurfrules
+.cursorrules
+.mcp.json
+.opencode.json
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+IMPL_GUIDE.md
