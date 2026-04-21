@@ -16,6 +16,8 @@ type RequestControllerOptions = {
   enableDeferredProcessing: boolean;
   enableRateLimitQueueFallback: boolean;
   rateLimitQueueDelayMs: number;
+  rateLimit: number;
+  rateWindowMs: number;
   logger: {
     error: (object: Record<string, unknown>, message?: string) => void;
   };
@@ -28,6 +30,8 @@ export class RequestController {
   private readonly enableDeferredProcessing: boolean;
   private readonly enableRateLimitQueueFallback: boolean;
   private readonly rateLimitQueueDelayMs: number;
+  private readonly rateLimit: number;
+  private readonly rateWindowMs: number;
   private readonly logger: {
     error: (object: Record<string, unknown>, message?: string) => void;
   };
@@ -39,6 +43,8 @@ export class RequestController {
     this.enableDeferredProcessing = options.enableDeferredProcessing;
     this.enableRateLimitQueueFallback = options.enableRateLimitQueueFallback;
     this.rateLimitQueueDelayMs = options.rateLimitQueueDelayMs;
+    this.rateLimit = options.rateLimit;
+    this.rateWindowMs = options.rateWindowMs;
     this.logger = options.logger;
   }
 
@@ -60,9 +66,11 @@ export class RequestController {
         );
       }
 
-      reply.header('Retry-After', '60').status(429).send({
+      const retryAfterSeconds = Math.max(1, Math.ceil(this.rateWindowMs / 1000));
+
+      reply.header('Retry-After', String(retryAfterSeconds)).status(429).send({
         error: 'rate_limit_exceeded',
-        message: 'Max 5 requests per minute exceeded',
+        message: `Max ${this.rateLimit} requests per ${retryAfterSeconds} seconds exceeded`,
       });
       return;
     }

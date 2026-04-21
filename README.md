@@ -202,7 +202,7 @@ Rate limited:
 ```json
 {
 	"error": "rate_limit_exceeded",
-	"message": "Max 5 requests per minute exceeded"
+  "message": "Max <RATE_LIMIT> requests per <RATE_WINDOW_MS/1000> seconds exceeded"
 }
 ```
 
@@ -366,5 +366,5 @@ Reliability and compatibility notes:
   corresponding down.sql. It’s one of those things you don't think you need
   until a deployment goes sideways and you need a clean rollback path.
 
-The load test fires 100 concurrent requests for the same user and exits non-zero
-unless exactly 5 requests succeed and 95 are rejected.
+The load test fires concurrent requests for the same user and exits non-zero
+unless accepted and rejected counts match the configured `RATE_LIMIT`.

@@ -32,6 +32,8 @@ describe('RequestController', () => {
       enableDeferredProcessing: true,
       enableRateLimitQueueFallback: false,
       rateLimitQueueDelayMs: 60_000,
+      rateLimit: 5,
+      rateWindowMs: 60_000,
       logger,
     });
     const reply = createReply();
@@ -71,6 +73,8 @@ describe('RequestController', () => {
       enableDeferredProcessing: false,
       enableRateLimitQueueFallback: true,
       rateLimitQueueDelayMs: 60_000,
+      rateLimit: 12,
+      rateWindowMs: 30_000,
       logger: { error: vi.fn() },
     });
     const reply = createReply();
@@ -91,11 +95,11 @@ describe('RequestController', () => {
       { hello: 'world' },
       60_000,
     );
-    expect(reply.header).toHaveBeenCalledWith('Retry-After', '60');
+    expect(reply.header).toHaveBeenCalledWith('Retry-After', '30');
     expect(reply.status).toHaveBeenCalledWith(429);
     expect(reply.send).toHaveBeenCalledWith({
       error: 'rate_limit_exceeded',
-      message: 'Max 5 requests per minute exceeded',
+      message: 'Max 12 requests per 30 seconds exceeded',
     });
   });
 });

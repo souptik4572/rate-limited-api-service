@@ -1,6 +1,7 @@
 const baseUrl = process.env.BASE_URL ?? 'http://localhost:3000';
 const userId = process.env.USER_ID ?? 'load-test-user';
 const totalRequests = Number(process.env.TOTAL_REQUESTS ?? '100');
+const expectedAccepted = Number(process.env.RATE_LIMIT ?? '5');
 
 async function main(): Promise<void> {
   const requests = Array.from({ length: totalRequests }, (_, index) =>
@@ -40,6 +41,7 @@ async function main(): Promise<void> {
         baseUrl,
         userId,
         totalRequests,
+        expectedAccepted,
         ...counts,
       },
       null,
@@ -47,7 +49,11 @@ async function main(): Promise<void> {
     ),
   );
 
-  if (counts.accepted !== 5 || counts.rejected !== totalRequests - 5 || counts.unexpected !== 0) {
+  if (
+    counts.accepted !== expectedAccepted
+    || counts.rejected !== totalRequests - expectedAccepted
+    || counts.unexpected !== 0
+  ) {
     process.exitCode = 1;
   }
 }

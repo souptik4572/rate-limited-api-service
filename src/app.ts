@@ -75,6 +75,8 @@ export async function buildApp() {
     enableDeferredProcessing: env.enableDeferredProcessing,
     enableRateLimitQueueFallback: env.enableRateLimitQueueFallback,
     rateLimitQueueDelayMs: env.rateLimitQueueDelayMs,
+    rateLimit: env.rateLimit,
+    rateWindowMs: env.rateWindowMs,
     logger: app.log,
   });
 
